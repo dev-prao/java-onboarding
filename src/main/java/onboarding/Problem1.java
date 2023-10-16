@@ -3,9 +3,20 @@ package onboarding;
 import java.util.List;
 
 class Problem1 {
+
+	private Problem1() {}
+
+	static Validation validation = new Validation();
+	static Calculation calculation = new Calculation();
+	static Output output = new Output();
+
 	public static int solution(List<Integer> pobi, List<Integer> crong) {
-		int answer = Integer.MAX_VALUE;
-		return answer;
+		if (validation.validate(pobi) && validation.validate(crong)) {
+			int pobiScore = calculation.getMaxScore(pobi);
+			int crongScore = calculation.getMaxScore(crong);
+			return output.getOutput(pobiScore, crongScore);
+		}
+		return Output.EXCEPTION;
 	}
 
 	static class Validation {
@@ -51,7 +62,6 @@ class Problem1 {
 	}
 
 	static class Calculation {
-
 		public int getMaxScore(List<Integer> pages) {
 			return Math.max(plusOrMultiple(pages.get(0)), plusOrMultiple(pages.get(1)));
 		}
@@ -80,7 +90,6 @@ class Problem1 {
 	}
 
 	static class Output {
-
 		private static final int POBI_WIN = 1;
 		private static final int CRONG_WIN = 2;
 		private static final int DRAW = 0;
