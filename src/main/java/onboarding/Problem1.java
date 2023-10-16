@@ -50,3 +50,32 @@ class Validation {
         return pages.size() == 2;
     }
 }
+
+class Calculation {
+
+    public int getMaxScore(List<Integer> pages) {
+        return Math.max(plusOrMultiple(pages.get(0)), plusOrMultiple(pages.get(1)));
+    }
+
+    private int plusOrMultiple(int page) {
+        return Math.max(plus(page), multiple(page));
+    }
+
+    private int plus(int page) {
+        int result = 0;
+        while (page != 0) {
+            result += page % 10;
+            page /= 10;
+        }
+        return result;
+    }
+
+    private int multiple(int page) {
+        int result = 1;
+        while (page != 0) {
+            result *= page % 10;
+            page /= 10;
+        }
+        return result;
+    }
+}
