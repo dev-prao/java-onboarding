@@ -8,4 +8,11 @@ public class Problem5 {
         List<Integer> answer = Collections.emptyList();
         return answer;
     }
+
+    static class Validation {
+
+        public boolean range(int money) {
+            return 1 <= money && money <= 1_000_000;
+        }
+    }
 }
