@@ -65,5 +65,19 @@ public class Problem7 {
 			userMap.computeIfAbsent(second, s -> new HashSet<>()).add(first);
 		}
 	}
+
+	static class AllUser {
+
+		public HashMap<String, Integer> getAllUser(Map<String, Set<String>> userMap, List<String> visitors) {
+			HashMap<String, Integer> score = new HashMap<>();
+			Set<String> allUserSet = new HashSet<>();
+			allUserSet.addAll(userMap.keySet());
+			allUserSet.addAll(visitors);
+			for (String string : allUserSet) {
+				score.put(string, 0);
+			}
+			return score;
+		}
+	}
 }
 
