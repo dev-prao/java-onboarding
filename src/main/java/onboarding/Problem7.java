@@ -68,15 +68,83 @@ public class Problem7 {
 
 	static class AllUser {
 
-		public HashMap<String, Integer> getAllUser(Map<String, Set<String>> userMap, List<String> visitors) {
+		public HashMap<String, Integer> getScore(Map<String, Set<String>> userMap,
+			List<String> visitors) {
 			HashMap<String, Integer> score = new HashMap<>();
+			Set<String> allUserSet = getUserSet(userMap, visitors);
+			insertNameWithZero(score, allUserSet);
+			return score;
+		}
+
+		private Set<String> getUserSet(Map<String, Set<String>> userMap, List<String> visitors) {
 			Set<String> allUserSet = new HashSet<>();
 			allUserSet.addAll(userMap.keySet());
 			allUserSet.addAll(visitors);
+			return allUserSet;
+		}
+
+		private void insertNameWithZero(HashMap<String, Integer> score, Set<String> allUserSet) {
 			for (String string : allUserSet) {
 				score.put(string, 0);
 			}
+		}
+	}
+
+	static class Point {
+
+		public HashMap<String, Integer> getFriendsPoint(String user, HashMap<String, Integer> score,
+			Map<String, Set<String>> userMap) {
+			Set<String> userFriends = userMap.get(user);
+			Set<String> allUsers = score.keySet();
+			deleteFriends(user, score, userMap);
+			addFriendPoint(user, score, userMap);
 			return score;
+		}
+
+		public HashMap<String, Integer> getVisitorsPoint(HashMap<String, Integer> score,
+			List<String> visitors) {
+			for (String visitor : visitors) {
+				if (score.containsKey(visitor)) {
+					score.put(visitor, score.get(visitor) + 1);
+				}
+			}
+			return score;
+		}
+
+		private void deleteFriends(String user, HashMap<String, Integer> score,
+			Map<String, Set<String>> userMap
+		) {
+			Set<String> userFriends = userMap.get(user);
+			Set<String> allUsers = score.keySet();
+			for (String friend : userFriends) {
+				if (allUsers.contains(friend)) {
+					score.remove(friend);
+				}
+			}
+		}
+
+		private void addFriendPoint(String user, HashMap<String, Integer> score,
+			Map<String, Set<String>> userMap) {
+			Set<String> userFriends = userMap.get(user);
+			Set<String> allUsers = score.keySet();
+			for (String person : allUsers) {
+				if (userMap.containsKey(person)) {
+					Set<String> personFriends = userMap.get(person);
+					int pointsToAdd = calculatePointsToAdd(userFriends, personFriends);
+					score.put(person, score.get(person) + pointsToAdd);
+				}
+			}
+		}
+
+		private int calculatePointsToAdd(Set<String> userFriends, Set<String> personFriends) {
+			int pointsToAdd = 0;
+			for (String friend : userFriends) {
+				if (personFriends.contains(friend)) {
+					pointsToAdd += 10;
+				}
+			}
+
+			return pointsToAdd;
 		}
 	}
 }
