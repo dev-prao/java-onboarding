@@ -1,10 +1,15 @@
 package onboarding;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Problem7 {
-	public static List<String> solution(String user, List<List<String>> friends, List<String> visitors) {
+	public static List<String> solution(String user, List<List<String>> friends,
+		List<String> visitors) {
 		List<String> answer = Collections.emptyList();
 		return answer;
 	}
@@ -41,6 +46,24 @@ public class Problem7 {
 		private boolean isVisitorsSizeValid(List<String> visitors) {
 			return 0 <= visitors.size() && visitors.size() <= 10_000;
 		}
+	}
 
+	static class UserMap {
+
+		public Map<String, Set<String>> generateUserMap(List<List<String>> friends) {
+			Map<String, Set<String>> userMap = new HashMap<>();
+			for (List<String> friend : friends) {
+				addFriends(userMap, friend);
+			}
+			return userMap;
+		}
+
+		private void addFriends(Map<String, Set<String>> userMap, List<String> friend) {
+			String first = friend.get(0);
+			String second = friend.get(1);
+			userMap.computeIfAbsent(first, s -> new HashSet<>()).add(second);
+			userMap.computeIfAbsent(second, s -> new HashSet<>()).add(first);
+		}
 	}
 }
+
