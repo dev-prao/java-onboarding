@@ -1,17 +1,36 @@
 package onboarding;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class Problem7 {
+class Problem7 {
+
+	private Problem7() {}
+
+	static Validation validation = new Validation();
+	static UserMap userMap = new UserMap();
+	static AllUser allUser = new AllUser();
+	static Point point = new Point();
+	static Output output = new Output();
+
 	public static List<String> solution(String user, List<List<String>> friends,
 		List<String> visitors) {
-		List<String> answer = Collections.emptyList();
-		return answer;
+		if (validation.isValid(user, friends, visitors)) {
+			Map<String, Set<String>> friendsList = userMap.generateUserMap(friends);
+			Map<String, Integer> scoreBoard = allUser.getScore(friendsList, visitors);
+			Map<String, Integer> friendsPoint = point.getFriendsPoint(user, scoreBoard, friendsList);
+			Map<String, Integer> totalPoint = point.getVisitorsPoint(friendsPoint, visitors);
+			return output.getOutput(totalPoint);
+		}
+
+
+		return Collections.emptyList();
 	}
 
 	static class Validation {
@@ -31,7 +50,7 @@ public class Problem7 {
 		}
 
 		private boolean isFriendsSizeValid(List<List<String>> friends) {
-			return 1 <= friends.size() && friends.size() <= 10_000;
+			return !friends.isEmpty() && friends.size() <= 10_000;
 		}
 
 		private boolean isFriendSizeValid(List<List<String>> friends) {
@@ -44,7 +63,7 @@ public class Problem7 {
 		}
 
 		private boolean isVisitorsSizeValid(List<String> visitors) {
-			return 0 <= visitors.size() && visitors.size() <= 10_000;
+			return visitors.size() <= 10_000;
 		}
 	}
 
@@ -68,9 +87,9 @@ public class Problem7 {
 
 	static class AllUser {
 
-		public HashMap<String, Integer> getScore(Map<String, Set<String>> userMap,
+		public Map<String, Integer> getScore(Map<String, Set<String>> userMap,
 			List<String> visitors) {
-			HashMap<String, Integer> score = new HashMap<>();
+			Map<String, Integer> score = new HashMap<>();
 			Set<String> allUserSet = getUserSet(userMap, visitors);
 			insertNameWithZero(score, allUserSet);
 			return score;
@@ -83,7 +102,7 @@ public class Problem7 {
 			return allUserSet;
 		}
 
-		private void insertNameWithZero(HashMap<String, Integer> score, Set<String> allUserSet) {
+		private void insertNameWithZero(Map<String, Integer> score, Set<String> allUserSet) {
 			for (String string : allUserSet) {
 				score.put(string, 0);
 			}
@@ -92,26 +111,24 @@ public class Problem7 {
 
 	static class Point {
 
-		public HashMap<String, Integer> getFriendsPoint(String user, HashMap<String, Integer> score,
+		public Map<String, Integer> getFriendsPoint(String user, Map<String, Integer> score,
 			Map<String, Set<String>> userMap) {
-			Set<String> userFriends = userMap.get(user);
-			Set<String> allUsers = score.keySet();
+
 			deleteFriends(user, score, userMap);
 			addFriendPoint(user, score, userMap);
 			return score;
 		}
 
-		public HashMap<String, Integer> getVisitorsPoint(HashMap<String, Integer> score,
+		public Map<String, Integer> getVisitorsPoint(Map<String, Integer> score,
 			List<String> visitors) {
 			for (String visitor : visitors) {
-				if (score.containsKey(visitor)) {
-					score.put(visitor, score.get(visitor) + 1);
-				}
+				score.computeIfPresent(visitor, (key, value) -> value + 1);
 			}
 			return score;
 		}
 
-		private void deleteFriends(String user, HashMap<String, Integer> score,
+
+		private void deleteFriends(String user, Map<String, Integer> score,
 			Map<String, Set<String>> userMap
 		) {
 			Set<String> userFriends = userMap.get(user);
@@ -121,9 +138,10 @@ public class Problem7 {
 					score.remove(friend);
 				}
 			}
+			score.remove(user);
 		}
 
-		private void addFriendPoint(String user, HashMap<String, Integer> score,
+		private void addFriendPoint(String user, Map<String, Integer> score,
 			Map<String, Set<String>> userMap) {
 			Set<String> userFriends = userMap.get(user);
 			Set<String> allUsers = score.keySet();
@@ -145,6 +163,45 @@ public class Problem7 {
 			}
 
 			return pointsToAdd;
+		}
+	}
+
+	static class Output {
+
+		public List<String> getOutput(Map<String, Integer> score) {
+			Map<String, Integer> sortedTreeMap = sort(score);
+			return cutToMaxFivePeople(sortedTreeMap);
+		}
+
+		private Map<String, Integer> sort(Map<String, Integer> score) {
+			List<String> keySet = new ArrayList<>(score.keySet());
+			keySet.sort((o1, o2) -> {
+				int valueComparison = score.get(o2).compareTo(score.get(o1));
+				if (valueComparison != 0) {
+					return valueComparison; // Value가 다른 경우 내림차순 정렬
+				} else {
+					return o1.compareTo(o2); // Value가 같으면 Key를 오름차순 정렬
+				}
+			});
+
+			// 정렬된 키를 사용하여 새로운 Map을 만듭니다.
+			Map<String, Integer> sortedMap = new LinkedHashMap<>();
+			for (String key : keySet) {
+				sortedMap.put(key, score.get(key));
+			}
+
+			return sortedMap;
+		}
+
+
+		private List<String> cutToMaxFivePeople(Map<String, Integer> sortedTreeMap) {
+			List<String> result = new ArrayList<>();
+			for (String person : sortedTreeMap.keySet()) {
+				if (sortedTreeMap.get(person) != null) {
+					result.add(person);
+				}
+			}
+			return result;
 		}
 	}
 }
